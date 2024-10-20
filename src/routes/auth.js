@@ -1,5 +1,5 @@
 const express=require("express");
-const authRouterrouter=express.Router();
+const authRouter=express.Router();
 const bcrypt=require("bcrypt");
 const User=require("../models/user.js");
 const {validSignUpData}=require("../utils/validation.js");
@@ -47,7 +47,7 @@ authRouter.post("/login",async(req,res)=>{
       res.send("Login Sucessfully");
      }
      }catch(err){
-     res.status(400).send("ERROR IS COMING"+ err.message);
+     res.status(400).send("ERROR IS COMING "+ err.message);
     }
   })
 module.exports=authRouter;
