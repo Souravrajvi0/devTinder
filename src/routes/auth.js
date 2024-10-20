@@ -3,6 +3,8 @@ const authRouter=express.Router();
 const bcrypt=require("bcrypt");
 const User=require("../models/user.js");
 const {validSignUpData}=require("../utils/validation.js");
+const {userAuth}=require("../middleware/adminauth.js");
+
 
 authRouter.post("/signup", async(req,res)=>{
   
@@ -50,4 +52,12 @@ authRouter.post("/login",async(req,res)=>{
      res.status(400).send("ERROR IS COMING "+ err.message);
     }
   })
+
+ authRouter.post("/logout",async (req,res) => {
+    //res.clearCookie("token");
+    res.cookie("token",null,{
+        expires:new Date(Date.now()),
+    }).send("Logout Sucessfully");
+    
+ }) 
 module.exports=authRouter;
