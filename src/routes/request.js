@@ -76,6 +76,7 @@ requestRouter.post("/request/review/:status/:toUserId", userAuth,async (req,res)
             return res.status(404).send("NO REQUEST PRESENT");
         }
         connectionRequest.status=status;
+        
         const data= await connectionRequest.save();
         res.json({message:"Connection request "+ status,data});
         

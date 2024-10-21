@@ -9,9 +9,53 @@ const loggedInUser=req.user;
 const connectionRequests=await ConnectionRequest.find({
     toUserId:loggedInUser._id,
     status:"interested",
+}).populate("fromUserId",["firstName","lastName","photourl"]);
+res.send(connectionRequests);    
+   
 });
-res.json({message:"DATA FETCHED SUCCESSFULLY"},connectionRequests);
+userRouter.get("/user/connections",userAuth,async(req,res)=>{
+const loggedInUser=req.user;
+try{
+  const connectionRequests=await ConnectionRequest.find({
+     $or:[
+        {fromUserId:loggedInUser._id,status:"accepted"},
+        {toUserId:loggedInUser._id,status:"accepted"}
+     ]
+  }).populate("fromUserId",["firstName","lastName","photourl"]);
+  res.send(connectionRequests);
 
-    
+}catch(error){
+    res.status(400).send("Something went wrong: "+error.message);
+}
+
 });
+userRouter.get("/user/feed",userAuth,async(req,res)=>{
+    try{
+        const loggedInUser=req.user;
+        const connectionRequests=await ConnectionRequest.find({
+           $or:[
+            {fromUserId:loggedInUser._id},
+            {toUserId:loggedInUser._id}
+           ]
+        }).select("fromUserId,toUserId");
+        const hideUsersFromFeed=new Set();
+        connectionRequests.forEach((req)=>{
+        hideUsersFromFeed.add(req.fromUserId);
+        hideUsersFromFeed.add(req.toUserId);
+       });
+       const users=await User.find({
+        $and:[
+            {_id:{$nin:Array.from(hideUsersFromFeed)}},
+            {_id:{$ne:loggedInUser._id}}
+        ]
+        }
+    ).select("firstName lastName photourl");
+     res.send(users);
+    }  
+    catch(error){
+        res.status(400).send("Something went wrong: "+error.message);
+    }
+});
+
 module.exports=userRouter;
+
